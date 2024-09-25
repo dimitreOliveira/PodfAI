@@ -1,0 +1,11 @@
+isort
+black
+flake8
+mypy
+pyyaml
+# pydantic
+python-dotenv
+streamlit
+google-cloud-aiplatform
+git+github.com:collabora/WhisperSpeech.git
+webdataset
