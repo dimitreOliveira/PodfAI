@@ -7,5 +7,4 @@ pyyaml
 python-dotenv
 streamlit
 google-cloud-aiplatform
-git+github.com:collabora/WhisperSpeech.git
-webdataset
+google-cloud-texttospeech

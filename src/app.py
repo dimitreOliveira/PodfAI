@@ -1,19 +1,44 @@
 import logging
 
-import numpy as np
+import pandas as pd
 import streamlit as st
 import vertexai
+from google.cloud import texttospeech
 from vertexai.generative_models import GenerativeModel, Part
-from whisperspeech.pipeline import Pipeline
 
 from common import configs
 
+VOICE_DATA_PATH = "./assets/google_tts_voice_data.csv"
 
-def generate_transcript(content: str, prompt: str, model: GenerativeModel) -> str:
+ACCEPTED_FILE_INPUTS = [
+    "txt",
+    "md",
+    "pdf",
+]
+
+
+def process_file_input(uploaded_files: list):
+    logger.info("Processing file input")
+    files = []
+
+    for uploaded_file in uploaded_files:
+        file_extension = uploaded_file.name.split(".")[-1]
+        if file_extension in ["txt", "md"]:
+            files.append(Part.from_text(uploaded_file.read().decode()))
+        elif file_extension in ["pdf"]:
+            files.append(
+                Part.from_data(uploaded_file.read(), mime_type="application/pdf")
+            )
+
+    return files
+
+
+def generate_transcript(
+    uploaded_files: list, prompt: str, model: GenerativeModel
+) -> str:
     logger.info("Generating transcript")
-    file_input = Part.from_text(content)
     responses = model.generate_content(
-        [file_input, prompt],
+        [*uploaded_files, prompt],
         generation_config={
             "max_output_tokens": configs["max_output_tokens"],
             "temperature": configs["temperature"],
@@ -41,33 +66,35 @@ def format_transcript(transcript: str) -> list[dict[str]]:
     return transcript_roles
 
 
+def tts_fn(prompt, client, voice, audio_config):
+    synthesis_input = texttospeech.SynthesisInput(text=prompt)
+
+    response = client.synthesize_speech(
+        input=synthesis_input,
+        voice=voice,
+        audio_config=audio_config,
+    )
+    return response.audio_content
+
+
 def transcript_to_speech(
-    transcript: list[dict[str]], tts_model: Pipeline
-) -> list[np.ndarray]:
+    transcript: list[dict[str]],
+    tts_model: texttospeech.TextToSpeechClient,
+    host_voice: texttospeech.VoiceSelectionParams,
+    guest_voice: texttospeech.VoiceSelectionParams,
+) -> bytes:
     logger.info("Generating speeches")
-    podcast_audio = []
+    podcast_audio = bytes()
 
     for sentence in transcript:
         role = sentence["role"]
         text = sentence["text"]
         if role == "Host":
-            speech = tts_model.generate(
-                text,
-                speaker=host_voice,
-                lang="en",
-                cps=configs["host_cps"],
-            )
-            podcast_audio.append(speech.cpu().numpy())
+            response = tts_fn(text, tts_model, host_voice, audio_config)
         elif role == "Guest":
-            speech = tts_model.generate(
-                text,
-                speaker=guest_voice,
-                lang="en",
-                cps=configs["guest_cps"],
-            )
-            podcast_audio.append(speech.cpu().numpy())
+            response = tts_fn(text, tts_model, guest_voice, audio_config)
+        podcast_audio += response
 
-    podcast_audio = np.concatenate(podcast_audio, axis=-1)
     return podcast_audio
 
 
@@ -92,14 +119,14 @@ def setup_text_model(model_id: str) -> GenerativeModel:
 
 
 @st.cache_resource()
-def setup_tts_model() -> Pipeline:
+def setup_tts_model() -> texttospeech.TextToSpeechClient:
     logger.info("TTS model setup starting")
-    tts_model = Pipeline(
-        t2s_ref="whisperspeech/whisperspeech:t2s-v1.95-small-8lang.model",
-        s2a_ref="whisperspeech/whisperspeech:s2a-v1.95-medium-7lang.model",
+    tts_model = texttospeech.TextToSpeechClient()
+    audio_config = texttospeech.AudioConfig(
+        audio_encoding=texttospeech.AudioEncoding.MP3
     )
     logger.info("TTS model setup finished")
-    return tts_model
+    return tts_model, audio_config
 
 
 logging.basicConfig(level=logging.INFO)
@@ -110,12 +137,10 @@ This podcast must be focused on the content of the file provided, covering the r
 Each phrase must start with "Host:" or "Guest:" to outline who is speaking.
 Make this content very conversational, where the guest and the host are exchanging ideas and asking questions."""
 
-host_voice = "./voice_samples/host_1.wav"
-guest_voice = "./voice_samples/dimitre_olivera.wav"
-
+voice_data = pd.read_csv(VOICE_DATA_PATH).query("language == 'en-US'")
 
 st.set_page_config(
-    page_title="PodifAI",
+    page_title="PodfAI",
     page_icon="🎙",
 )
 
@@ -123,44 +148,71 @@ st.set_page_config(
 if not st.session_state:
     setup_vertex(configs["project"], configs["location"])
     text_model = setup_text_model(configs["model_id"])
-    tts_model = setup_tts_model()
+    tts_model, audio_config = setup_tts_model()
 
-st.title("🎙 PodifAI")
+st.title("🎙 PodfAI")
 
-st.markdown("### Generate content in a stype of podcast based on any input.")
+st.markdown("### Generate content in podcast style based on any input.")
 
-uploaded_file = st.file_uploader("Upload a file", type=("txt", "md"))
+with st.expander("Customize voices"):
+    host_col, guest_col = st.columns([1, 1])
 
-host_col, guest_col = st.columns([1, 1])
+    with host_col:
+        host_voice_choice = st.selectbox(
+            "Host voice",
+            voice_data.description,
+            index=27,
+        )
+        host_data = voice_data.loc[voice_data["description"] == host_voice_choice].iloc[
+            0
+        ]
+        host_voice = texttospeech.VoiceSelectionParams(
+            language_code=host_data.language,
+            name=host_data.voice,
+            ssml_gender=host_data.gender,
+        )
 
-with host_col:
-    st.markdown("Host voice")
-    host_voice = st.file_uploader(
-        "Provide a voice sample (optional)",
-        type=(".wav", ".mp3", ".ogg"),
+    with guest_col:
+        guest_voice_choice = st.selectbox(
+            "Guest voice",
+            voice_data.description,
+            index=0,
+        )
+        guest_data = voice_data.loc[
+            voice_data["description"] == guest_voice_choice
+        ].iloc[0]
+        guest_voice = texttospeech.VoiceSelectionParams(
+            language_code=guest_data.language,
+            name=guest_data.voice,
+            ssml_gender=guest_data.gender,
+        )
+
+col_1, col_2 = st.columns([1, 1])
+
+with col_1:
+    uploaded_files = st.file_uploader(
+        "Upload a file",
+        accept_multiple_files=True,
+        type=ACCEPTED_FILE_INPUTS,
     )
 
-with guest_col:
-    st.markdown("Guest voice")
-    guest_voice = st.file_uploader(
-        "Provide a voice sample (optional) ",
-        type=(".wav", ".mp3", ".ogg"),
-    )
-
-generate_btn = st.button("Generate podcast")
+with col_2:
+    generate_btn = st.button("Generate podcast")
 
 if generate_btn:
-    if uploaded_file:
-        file_content = uploaded_file.read().decode()
-        transcript = generate_transcript(file_content, system_prompt, text_model)
+    if uploaded_files:
+        uploaded_files = process_file_input(uploaded_files)
+        transcript = generate_transcript(uploaded_files, system_prompt, text_model)
 
         transcript_formatted = format_transcript(transcript)
-        podcast_audio = transcript_to_speech(transcript_formatted, tts_model)
+        podcast_audio = transcript_to_speech(
+            transcript_formatted, tts_model, host_voice, guest_voice
+        )
 
         st.write("### Audio content")
-        st.audio(podcast_audio, sample_rate=24000)
+        st.audio(podcast_audio)
 
-        st.write("### Transcipt")
+        st.write("### Transcript")
         st.write(transcript)
     else:
         st.error("Upload a file.")
