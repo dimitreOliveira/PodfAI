@@ -3,6 +3,12 @@ import logging
 
 import yaml
 
+ACCEPTED_FILE_INPUTS = [
+    "txt",
+    "md",
+    "pdf",
+]
+
 
 def parse_configs(configs_path: str) -> dict:
     """Parse configs from the YAML file.
@@ -18,9 +24,5 @@ def parse_configs(configs_path: str) -> dict:
     return configs
 
 
-CONFIGS_PATH = "configs.yaml"
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__file__)
-
-configs = parse_configs(CONFIGS_PATH)
