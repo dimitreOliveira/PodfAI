@@ -1,0 +1,10 @@
+vertex:
+  project: {VERTEX_AI_PROJECT}
+  location: {VERTEX_AI_LOCALTION}
+transcript:
+  model_id: gemini-1.5-pro-002
+  transcript_len: 5000
+  max_output_tokens: 8192
+  temperature: 1
+  top_p: 0.95
+  top_k: 32

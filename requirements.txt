@@ -3,8 +3,7 @@ black
 flake8
 mypy
 pyyaml
-# pydantic
-python-dotenv
+pydantic
 streamlit
 google-cloud-aiplatform
 google-cloud-texttospeech
