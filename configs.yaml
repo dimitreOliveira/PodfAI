@@ -1,6 +1,6 @@
 vertex:
   project: {VERTEX_AI_PROJECT}
-  location: {VERTEX_AI_LOCALTION}
+  location: {VERTEX_AI_LOCATION}
 transcript:
   model_id: gemini-1.5-pro-002
   transcript_len: 5000
