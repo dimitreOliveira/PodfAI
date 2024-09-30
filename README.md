@@ -1,5 +1,5 @@
 # PodfAI
-This APP allows the user to create content in the style of podcasts based on the provides files. Some example would be providing a paper, lecture, project description, personal resume or many others.
+This APP allows the user to create content in the style of podcasts based on the provided files. Some examples would be providing a paper, lecture, project description, personal resume, or many others.
 
 # How it works
 
@@ -7,9 +7,9 @@ This APP allows the user to create content in the style of podcasts based on the
 
 # How to use
 1. Provide one or more files.
-2. Optionally customize the voices of the guest and host, you can [check the voice samples here.](https://cloud.google.com/text-to-speech/docs/voices)
+2. Optionally, customize the voices of the guest and host, you can [check out the voice samples here.](https://cloud.google.com/text-to-speech/docs/voices)
 3. Click on "Generate podcast" and wait a few moments.
-4. Play the audio and feel free to follow along the textual transcript.
+4. Play the audio, and feel free to follow along the textual transcript.
 
 # Examples
 
@@ -36,27 +36,27 @@ source .venvs/podfai/bin/activate
 make build
 ```
 
-Altenatively you can also run using `pip`
+Alternatively, you can also run using `pip`
 ```bash
 pip install -r requirements
 ```
-5. Setup the Google API dependencies
+5. Set up the Google API dependencies
 - Follow [this guide](https://github.com/googleapis/google-cloud-python/tree/main/packages/google-cloud-texttospeech#python-client-for-google-cloud-text-to-speech) or [this other one](https://cloud.google.com/text-to-speech/docs/libraries).
 
 ## Running the APP
 
-To star the APP run the Make command below
+To start the APP, run the Make command below
 ```bash
 make app
 ```
 
-Altenatively you can also run using plain Python
+Alternatively, you can also run using plain Python
 ```python
 streamlit run src/app.py
 ```
 
 ### Configs
-Feel free to change the default configs to change the APP behavior or ajust to your needs.
+Feel free to change the default configs to change the APP behavior or adjust to your needs.
 ```
 vertex:
   project: {VERTEX_AI_PROJECT}
@@ -83,24 +83,23 @@ transcript:
 # TODO
 - Support voice cloning
 - Support other languages
-- Support other input types (pdf, iamges, videos, YouTube urls)
+- Support other input types (pdf, images, videos, YouTube URLs)
 - Add example notebook to run in Colab
-- Reproduce workflow with open source models
+- Reproduce workflow with open-source models
 - Experiment with agentic workflows to improve the podcast transcript
 
 # References
 - [Google cloud - Text-to-Speech client libraries](https://cloud.google.com/text-to-speech/docs/libraries)
-- [Setup Google cloud TTS locally](https://github.com/googleapis/google-cloud-python/tree/main/packages/google-cloud-texttospeech#python-client-for-google-cloud-text-to-speech)
-- [Google cloud TTS voice list](https://cloud.google.com/text-to-speech/docs/voices)''
-
+- [Setup Google Cloud TTS locally](https://github.com/googleapis/google-cloud-python/tree/main/packages/google-cloud-texttospeech#python-client-for-google-cloud-text-to-speech)
+- [Google Cloud TTS Voice List](https://cloud.google.com/text-to-speech/docs/voices)
 
 # Contributing
-If you are interested in contibuting to this project, thanks a lot! before creating your PR make sure to lint your code running the command below:
+If you are interested in contributing to this project, thanks a lot! Before creating your PR, make sure to lint your code, running the command below:
 
 ```bash
 make lint
 ```
 
 # Acknowledgments
-- **Google Cloud credits are provided for this project.** This project was possible thanks for the support of Google's ML Developer Programs team.
-- This project was based on Google's [NotebookLM](https://notebooklm.google.com), which aside from the podcast-style conten, has many other features, make sure to check it.
+- **Google Cloud credits are provided for this project.** This project was possible thanks to the support of Google's ML Developer Programs team.
+- This project was based on Google's [NotebookLM](https://notebooklm.google.com), which, aside from the podcast-style content, has many other features, make sure to check it out.
