@@ -13,9 +13,7 @@ This APP allows the user to create content in the style of podcasts based on the
 
 # Examples
 
-![](assets/app.png)
----
-![](assets/app1.png)
+![](assets/demo.png)
 
 # Local usage
 
