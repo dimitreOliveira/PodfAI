@@ -1,6 +1,8 @@
 # PodfAI
 This APP allows the user to create content in the style of podcasts based on the provided files. Some examples would be providing a paper, lecture, project description, personal resume, or many others.
 
+I also wrote a blog post to talk about this project, make sure to check "[**How to use generative AI to create podcast-style content from any input**](https://dimitreoliveira.medium.com/how-to-use-generative-ai-to-create-podcast-style-content-from-any-input-d07cbb3b1bc6)".
+
 # How it works
 
 ![](assets/diagram.jpg)
@@ -14,6 +16,18 @@ This APP allows the user to create content in the style of podcasts based on the
 # Examples
 
 ![](assets/demo.png)
+
+### Podcast generate from my other project "[AI beats](https://github.com/dimitreOliveira/ai_beats)"
+https://github.com/user-attachments/assets/2571c655-f1b2-4579-85a8-fd5908f93deb
+
+### Podcast generate from my other project "[AI trailer](https://github.com/dimitreOliveira/ai_trailer)"
+https://github.com/user-attachments/assets/ebd16d03-852d-4fe8-bd91-340d4e101076
+
+### Podcast generate from Andrew Huberman's "Optimal Morning Routine" description
+https://github.com/user-attachments/assets/592fac38-dfdf-4601-b1d1-bebfe5f19b49
+
+### Podcast generate by a personal resume
+https://github.com/user-attachments/assets/ff206905-1048-4993-9401-4c0db22e5fe1
 
 # Local usage
 
