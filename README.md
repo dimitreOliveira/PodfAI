@@ -83,7 +83,7 @@ transcript:
 # TODO
 - Support voice cloning
 - Support other languages
-- Support other input types (pdf, images, videos, YouTube URLs)
+- Support other input types (images, videos, YouTube URLs)
 - Add example notebook to run in Colab
 - Reproduce workflow with open-source models
 - Experiment with agentic workflows to improve the podcast transcript
